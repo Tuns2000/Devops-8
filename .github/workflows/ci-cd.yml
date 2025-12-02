@@ -2,10 +2,11 @@ name: CI/CD Todo App
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main" ]   # если у тебя master – поменяй здесь
+  workflow_dispatch:        # возможность запустить пайплайн руками
 
 env:
-  IMAGE_NAME: tuns2000/todo-app
+  IMAGE_NAME: tuns2000/todo-app   # твой логин на Docker Hub + имя репозитория
 
 jobs:
   build-and-push:
@@ -41,18 +42,28 @@ jobs:
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
 
- deploy:
-  needs: build-and-push
-  runs-on: ubuntu-latest
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
 
-  steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Show deploy instructions
-      run: |
-        echo "To deploy new version to Minikube run on your machine:"
-        echo "  kubectl apply -f k8s/mongo.yaml"
-        echo "  kubectl apply -f k8s/todo-app.yaml"
-        echo ""
-        echo "Image used: ${{ env.IMAGE_NAME }}:${{ github.sha }}"
+      # Здесь мы не лезем в твой локальный Minikube,
+      # а просто выводим понятные команды для деплоя
+      - name: Show deploy instructions for local Minikube
+        run: |
+          echo "Docker image pushed to Docker Hub:"
+          echo "  ${{ env.IMAGE_NAME }}:latest"
+          echo "  ${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          echo ""
+          echo "To deploy this image to your LOCAL Minikube cluster run on your machine:"
+          echo ""
+          echo "  kubectl apply -f k8s/mongo.yaml"
+          echo "  kubectl apply -f k8s/todo-app.yaml"
+          echo ""
+          echo "To update deployment to this exact commit:"
+          echo "  kubectl set image deployment/todo-app todo-app=${{ env.IMAGE_NAME }}:${{ github.sha }}"
+          echo ""
+          echo "Commit SHA: ${{ github.sha }}"
