@@ -9,7 +9,7 @@ app.get('/', (req, res) => {
   res.send('Todo API работает. Используйте /todos');
 });
 
-// строка подключения к MongoDB
+
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongo:27017/todosdb';
 
 mongoose
