@@ -30,7 +30,7 @@ const todoSchema = new mongoose.Schema(
 
 const Todo = mongoose.model('Todo', todoSchema);
 
-// GET /todos: Получить все задачи
+
 app.get('/todos', async (req, res) => {
   try {
     const todos = await Todo.find().sort({ createdAt: -1 });
